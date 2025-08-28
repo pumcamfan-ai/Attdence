@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>PlushCube Reading Reactor</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f8ff;
+      text-align: center;
+      padding: 40px;
+    }
+    #startBtn {
+      padding: 10px 20px;
+      font-size: 18px;
+      background: #88c;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    #log {
+      margin-top: 20px;
+      font-size: 16px;
+    }
+    .plushcube {
+      margin-top: 30px;
+      font-size: 24px;
+      background: #ffc;
+      padding: 20px;
+      border-radius: 12px;
+      display: inline-block;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎤 PlushCube Reading Reactor</h1>
+  <p>Read aloud and boost your PlushCube's trust!</p>
+  <button id="startBtn">Start Reading</button>
+  <div id="log"></div>
+  <div class="plushcube" id="reactionBox">🧸 PlushCube is listening...</div>
+
+  <script>
+    const startBtn = document.getElementById("startBtn");
+    const log = document.getElementById("log");
+    const reactionBox = document.getElementById("reactionBox");
+
+    let startTime, wordCount;
+
+    // Check for browser support
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      log.innerText = "❌ Speech recognition not supported in this browser.";
+      startBtn.disabled = true;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.continuous = false;
+    recognition.interimResults = false;
+
+    startBtn.onclick = () => {
+      wordCount = 0;
+      startTime = Date.now();
+      log.innerText = "🎙️ Listening...";
+      reactionBox.innerText = "🧸 PlushCube is focused...";
+      recognition.start();
+    };
+
+    recognition.onresult = (event) => {
+      const transcript = event.results[0][0].transcript;
+      wordCount = transcript.trim().split(/\s+/).length;
+      const duration = (Date.now() - startTime) / 1000;
+      const wpm = Math.round((wordCount / duration) * 60);
+      const trustBoost = Math.min(100, Math.floor(wpm / 2));
+
+      // Log result
+      const readingLog = {
+        name: "Student_" + Math.floor(Math.random() * 1000),
+        wpm: wpm,
+        words: wordCount,
+        trustBoost: trustBoost,
+        timestamp: new Date().toISOString()
+      };
+
+      let logs = JSON.parse(localStorage.getItem("readingLogs")) || [];
+      logs.push(readingLog);
+      localStorage.setItem("readingLogs", JSON.stringify(logs));
+
+      // Display result
+      log.innerHTML = `
+        ✅ Transcript: "${transcript}"<br>
+        🕒 Duration: ${duration.toFixed(1)} sec<br>
+        📊 Words: ${wordCount}<br>
+        🚀 WPM: ${wpm}<br>
+        🤝 Trust Boost: +${trustBoost}
+      `;
+      reactionBox.innerText = `🧸 PlushCube gained +${trustBoost} trust!`;
+    };
+
+    recognition.onerror = (event) => {
+      log.innerText = "⚠️ Error: " + event.error;
+      reactionBox.innerText = "🧸 PlushCube is confused...";
+    };
+  </script>
+</body>
+</html>

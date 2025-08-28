@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>PlushCube Islands</title>
+  <style>
+    body {
+      background-color: #0a0a0a;
+      color: #f0f0f0;
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background-color: #202020;
+      text-align: center;
+      padding: 20px;
+      border-bottom: 1px solid #444;
+    }
+    main {
+      padding: 30px;
+      max-width: 900px;
+      margin: auto;
+    }
+    .avatar-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      margin-top: 30px;
+    }
+    .avatar {
+      background-color: #1a1a1a;
+      border: 2px solid #00ffcc;
+      border-radius: 10px;
+      padding: 20px;
+      width: 150px;
+      text-align: center;
+      transition: transform 0.2s;
+    }
+    .avatar:hover {
+      transform: scale(1.05);
+      cursor: pointer;
+    }
+    .avatar-name {
+      font-weight: bold;
+      margin-top: 10px;
+    }
+    .empty {
+      color: #888;
+      font-style: italic;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🌴 PlushCube Islands</h1>
+    <p>Simulation Portal | Attendance Sync Active</p>
+  </header>
+  <main>
+    <h2>Island Residents</h2>
+    <div id="avatar-container" class="avatar-grid"></div>
+    <p id="empty-message" class="empty" style="display:none;">No students present. Add them in the dashboard to populate the island.</p>
+  </main>
+
+  <script>
+    function loadAvatars() {
+      const saved = localStorage.getItem("students");
+      const container = document.getElementById("avatar-container");
+      const emptyMsg = document.getElementById("empty-message");
+
+      if (!saved || JSON.parse(saved).length === 0) {
+        emptyMsg.style.display = "block";
+        return;
+      }
+
+      const students = JSON.parse(saved);
+      students.forEach(name => {
+        const avatar = document.createElement("div");
+        avatar.className = "avatar";
+        avatar.innerHTML = `
+          <img src="https://via.placeholder.com/100x100?text=🧍" alt="Avatar">
+          <div class="avatar-name">${name}</div>
+        `;
+        container.appendChild(avatar);
+      });
+    }
+
+    window.onload = loadAvatars;
+  </script>
+</body>
+</html>

@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>PlushCube Attendance Dashboard</title>
+  <style>
+    body {
+      background-color: #101010;
+      color: #f0f0f0;
+      font-family: sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    header, footer {
+      background-color: #202020;
+      text-align: center;
+      padding: 20px;
+      border-bottom: 1px solid #444;
+    }
+    nav {
+      display: flex;
+      justify-content: center;
+      background-color: #181818;
+      border-bottom: 1px solid #444;
+    }
+    nav button {
+      background: none;
+      border: none;
+      color: #00ffcc;
+      padding: 15px 30px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    nav button:hover {
+      background-color: #282828;
+    }
+    main {
+      padding: 40px;
+      max-width: 800px;
+      margin: auto;
+    }
+    .tab {
+      display: none;
+    }
+    .tab.active {
+      display: block;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      border: 1px solid #444;
+      padding: 10px;
+      text-align: left;
+    }
+    th {
+      background-color: #303030;
+    }
+    .submit-btn {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: #00ffcc;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+      border-radius: 4px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      background-color: #2a2a2a;
+      border: none;
+      color: #fff;
+      border-radius: 4px;
+    }
+    .delete-btn {
+      background-color: #ff4444;
+      border: none;
+      color: white;
+      padding: 6px 12px;
+      cursor: pointer;
+      border-radius: 4px;
+      font-weight: bold;
+    }
+    .delete-btn:hover {
+      background-color: #cc0000;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>PlushCube Attendance Dashboard</h1>
+  </header>
+  <nav>
+    <button onclick="showTab('attendance')">Attendance</button>
+    <button onclick="showTab('add')">Add Students</button>
+  </nav>
+  <main>
+    <div id="attendance" class="tab active">
+      <h2>Class: Simulation Grade 3</h2>
+      <p>Date: August 25, 2025</p>
+      <table id="attendance-table">
+        <tr>
+          <th>Student Name</th>
+          <th>Present</th>
+          <th>Delete</th>
+          <th>ReadingSim</th>
+        </tr>
+      </table>
+      <button class="submit-btn">Submit Attendance</button>
+    </div>
+
+    <div id="add" class="tab">
+      <h2>Add New Student</h2>
+      <input type="text" id="new-student-name" placeholder="Enter student name">
+      <button class="submit-btn" onclick="addStudent()">Add to Class</button>
+      <p style="margin-top:10px; color:#888;">(Student will be saved in browser memory.)</p>
+    </div>
+  </main>
+  <footer>
+    Simulation Timestamp: 21:16 CDT | PlushCube Sync: Persistent
+  </footer>
+
+  <script>
+    function showTab(tabId) {
+      document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
+    }
+
+    function loadStudents() {
+      const saved = localStorage.getItem("students");
+      if (!saved) return;
+      const students = JSON.parse(saved);
+      students.forEach(name => addStudentToTable(name));
+    }
+
+    function addStudent() {
+      const nameInput = document.getElementById('new-student-name');
+      const name = nameInput.value.trim();
+      if (name === "") return;
+
+      addStudentToTable(name);
+      saveStudent(name);
+
+      nameInput.value = "";
+      showTab('attendance');
+    }
+
+    function addStudentToTable(name) {
+      const table = document.getElementById('attendance-table');
+      const newRow = table.insertRow(-1);
+      const nameCell = newRow.insertCell(0);
+      const checkboxCell = newRow.insertCell(1);
+      const deleteCell = newRow.insertCell(2);
+      const simCell = newRow.insertCell(3);
+
+      nameCell.textContent = name;
+      checkboxCell.innerHTML = '<input type="checkbox">';
+      deleteCell.innerHTML = `<button class="delete-btn" onclick="confirmDelete('${name}', this)">Delete</button>`;
+      simCell.innerHTML = `<button class="submit-btn" onclick="startReadingSim('${name}')">🎤 ReadingSim</button>`;
+    }
+
+    function saveStudent(name) {
+      let students = JSON.parse(localStorage.getItem("students") || "[]");
+      students.push(name);
+      localStorage.setItem("students", JSON.stringify(students));
+    }
+
+    function confirmDelete(name, btn) {
+      const confirmed = confirm(`Are you sure you want to delete "${name}" from the class?`);
+      if (!confirmed) return;
+
+      let students = JSON.parse(localStorage.getItem("students") || "[]");
+      students = students.filter(s => s !== name);
+      localStorage.setItem("students", JSON.stringify(students));
+
+      const row = btn.closest("tr");
+      row.remove();
+    }
+
+    function startReadingSim(name) {
+      localStorage.setItem("activeReader", name);
+      window.location.href = "readingSim.html";
+    }
+
+    window.onload = loadStudents;
+  </script>
+</body>
+</html>
